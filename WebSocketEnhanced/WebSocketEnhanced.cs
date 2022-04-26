@@ -10,36 +10,35 @@ using System.Threading;
 
 namespace WebSocketEnhanced
 {
-    internal class WebSocketEnhanced
+    public class WebSocketEnhancedCore
     {
 
         // create object
         // subscribe to messagerecieved
         // await object.Listen()
 
-        int port { get; set; }
+        string port { get; set; }
         private ClientWebSocket socket;
         private Uri destinationURI;
 
-        public delegate void MessageEventHandler(object sender, MessageEventArgs args);
-        public event MessageEventHandler MessageReceived;
+        public event EventHandler<MessageEventArgs> MessageReceived;
 
-        public WebSocketEnhanced(int _port)
+        public WebSocketEnhancedCore(string _port)
         {
             this.port = _port;
             this.destinationURI = new Uri("ws://localhost:" + this.port);
             socket = new ClientWebSocket();
-            this.OpenSocket();
+            
         }
 
-        void OpenSocket()
+        public async Task OpenSocket()
         {
-            socket.ConnectAsync(this.destinationURI, CancellationToken.None);
+            await socket.ConnectAsync(this.destinationURI, CancellationToken.None);
         }
 
-        public void SendMessage(string msg)
+        public async Task SendMessage(string msg)
         {
-            socket.SendAsync(Encoding.ASCII.GetBytes(msg), WebSocketMessageType.Text, true, CancellationToken.None);
+            await socket.SendAsync(Encoding.ASCII.GetBytes(msg), WebSocketMessageType.Text, true, CancellationToken.None);
         }
 
         public async Task Listen()
@@ -61,7 +60,7 @@ namespace WebSocketEnhanced
                     {
                         var msg = Encoding.UTF8.GetString(ms.ToArray());
 
-                        MessageReceived?.Invoke(this, new MessageEventArgs(msg));
+                        OnRaiseMessageReceived(new MessageEventArgs(msg));
 
                     }
 
@@ -73,24 +72,35 @@ namespace WebSocketEnhanced
             }
         }
 
-    }
-
-    class TestClass
-    {
-        public async Task testing()
+        protected virtual void OnRaiseMessageReceived(MessageEventArgs e)
         {
-            var ws = new WebSocketEnhanced(22751);
-            ws.MessageReceived += HandleMessage;
 
-            await ws.Listen();
+            EventHandler<MessageEventArgs> msgEvent = MessageReceived;
 
-
-        }
-
-        void HandleMessage(object sender, MessageEventArgs e)
-        {
-            Console.WriteLine("From c#: " + e.message);
+            if (msgEvent != null)
+            {
+                msgEvent?.Invoke(this, e);
+            }
         }
 
     }
+
+    //class TestClass
+    //{
+    //    public async Task testing()
+    //    {
+    //        var ws = new WebSocketEnhanced(22751);
+    //        ws.MessageReceived += HandleMessage;
+
+    //        await ws.Listen();
+
+
+    //    }
+
+    //    void HandleMessage(object sender, MessageEventArgs e)
+    //    {
+    //        Console.WriteLine("From c#: " + e.message);
+    //    }
+
+    //}
 }
