@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.Net.WebSockets;
-using System.Text.Encodings;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Net.WebSockets;
+using Newtonsoft.Json;
 
 namespace WebSocketEnhanced
 {
-    public class WebSocketEnhancedCore
+    public class WebSocketEnhancedCore : ICommManager
     {
 
         // create object
@@ -23,25 +21,30 @@ namespace WebSocketEnhanced
 
         public event EventHandler<MessageEventArgs> MessageReceived;
 
-        public WebSocketEnhancedCore(string _port)
+        public WebSocketEnhancedCore(string _port, string destination = "localhost")
         {
             this.port = _port;
-            this.destinationURI = new Uri("ws://localhost:" + this.port);
+            this.destinationURI = new Uri("ws://" + destination + ":" + this.port);
             socket = new ClientWebSocket();
             
         }
 
-        public async Task OpenSocket()
+        public async Task OpenSocketAsync()
         {
             await socket.ConnectAsync(this.destinationURI, CancellationToken.None);
         }
 
-        public async Task SendMessage(string msg)
+        /// <summary>
+        /// Sends a supplied <c>string</c> over websocket
+        /// </summary>
+        /// <param name="msg">String to send over websocket.</param>
+        /// <returns>Task</returns>
+        public async Task SendMessageAsync(string msg)
         {
             await socket.SendAsync(Encoding.ASCII.GetBytes(msg), WebSocketMessageType.Text, true, CancellationToken.None);
         }
 
-        public async Task Listen()
+        public async Task ListenAsync()
         {
             using (var ms = new MemoryStream())
             {
@@ -84,23 +87,4 @@ namespace WebSocketEnhanced
         }
 
     }
-
-    //class TestClass
-    //{
-    //    public async Task testing()
-    //    {
-    //        var ws = new WebSocketEnhanced(22751);
-    //        ws.MessageReceived += HandleMessage;
-
-    //        await ws.Listen();
-
-
-    //    }
-
-    //    void HandleMessage(object sender, MessageEventArgs e)
-    //    {
-    //        Console.WriteLine("From c#: " + e.message);
-    //    }
-
-    //}
 }

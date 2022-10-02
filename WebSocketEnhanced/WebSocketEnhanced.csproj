@@ -3,6 +3,15 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>net5.0</TargetFramework>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>Maxwell J Branvall</Authors>
+    <Description>Basic web-socket library allowing for opening a connection, and listening, sending, and recieving messages.</Description>
+    <RepositoryUrl>https://github.com/MaxBranvall/WebSocketEnhanced</RepositoryUrl>
+    <PackageTags>websocket</PackageTags>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
 
 </Project>
